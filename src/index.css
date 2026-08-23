@@ -89,7 +89,7 @@ h1,h2{ font-style: normal; }
   font-style: italic;
   color: var(--rose);
 }
-.nav-links{
+.nav-links {
   display: flex;
   gap: 28px;
   font-family: var(--mono);
@@ -97,16 +97,24 @@ h1,h2{ font-style: normal; }
   letter-spacing: 0.1em;
   text-transform: uppercase;
 }
-.nav-links a{
+
+.nav-links a,
+.nav-links button {
   padding-bottom: 4px;
   border-bottom: 1px solid transparent;
   transition: border-color .2s ease, color .2s ease;
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
 }
-.nav-links a:hover, .nav-links a.active{
+
+.nav-links a:hover,
+.nav-links a.active,
+.nav-links button:hover {
   border-color: var(--rose);
   color: var(--rose);
 }
-
 /* ---------- swing tag (signature element) ---------- */
 .tag{
   position: relative;

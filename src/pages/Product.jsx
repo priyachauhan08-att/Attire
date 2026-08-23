@@ -19,7 +19,7 @@ export default function Product() {
 
   return (
     <main className="wrap product-section">
-      <Link className="back-link" to="/">← All looks</Link>
+      <Link className="back-link" to="/Attire">← All looks</Link>
 
       <div className="product-layout">
         <div className="product-img-wrap">

@@ -4,8 +4,8 @@ import { outfitTotal } from '../data.js'
 
 export default function OutfitCard({ outfit, small = false, showSeason = true }) {
   return (
-    <Link className={`look-card${small ? ' small' : ''}`} to={`/look/${outfit.id}`}>
-      <div className="look-card-img">
+    <Link target="_self" className={`look-card${small ? ' small' : ''}`} to={`/look/${outfit.id}`}>
+      <div className="look-card-img" style={{ aspectRatio: small ? '1 / 1' : '3 / 4', borderRadius: small ? 3 : 8 }}>
         <img src={outfit.coverImage} alt={`${outfit.title} — full outfit`} loading="lazy" />
         <Tag
           className="card-tag"

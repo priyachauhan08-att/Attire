@@ -16,6 +16,8 @@ export default function Footer() {
           <Link to="/about">About</Link>
           <a href={BRAND.pinterestUrl} target="_blank" rel="noopener noreferrer">Pinterest</a>
           <a href={`mailto:${BRAND.contactEmail}`}>Contact</a>
+          <a href="../public/privacy-policy" target="_blank" rel="noopener noreferrer">Privacy</a>
+          <Link to="/adminLog">Admin</Link>
         </div>
       </div>
       <div className="footer-bottom">
