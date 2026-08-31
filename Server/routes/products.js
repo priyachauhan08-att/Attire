@@ -3,8 +3,6 @@ const router = express.Router();
 const Product = require('../models/Product');
 const upload = require('../middleware/upload');
 
-const base = process.env.BASE_URL;
-
 // READ ALL
 router.get('/', async (req, res) => {
   try {
@@ -63,14 +61,14 @@ router.post(
         name: item.name,
         price: Number(item.price),
         buyUrl: item.buyUrl,
-        image: `${base}/uploads/${itemImageFiles[i].filename}`,
+        image: itemImageFiles[i].path, // Cloudinary URL (was: `${base}/uploads/${itemImageFiles[i].filename}`)
       }));
 
       const product = new Product({
         name,
         description,
         category,
-        mainImage: `${base}/uploads/${req.files.mainImage[0].filename}`,
+        mainImage: req.files.mainImage[0].path, // Cloudinary URL (was: `${base}/uploads/${req.files.mainImage[0].filename}`)
         items: itemsWithImages,
       });
 
