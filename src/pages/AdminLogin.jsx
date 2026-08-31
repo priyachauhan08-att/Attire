@@ -40,7 +40,7 @@ export default function AdminLogin() {
 
     const timer = setTimeout(() => {
       navigate('/adminDash');
-    }, 100000);
+    }, 1000);
 
     return () => clearTimeout(timer); // cleanup if component unmounts early
   }, [status, navigate]);

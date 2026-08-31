@@ -1,21 +1,38 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { Link, useParams, Navigate } from 'react-router-dom'
-import { OUTFITS, money, outfitTotal } from '../data.js'
 import Tag from '../components/Tag.jsx'
 import OutfitCard from '../components/OutfitCard.jsx'
+import SmartBgImage from '../components/SmartBgImage.jsx'
+
+const money = (n) => `₹${n.toFixed(2)}`
 
 export default function Product() {
   const { lookId } = useParams()
-  const outfit = OUTFITS.find((o) => o.id === lookId)
+  const [outfit, setOutfit] = useState(null)
+  const [notFound, setNotFound] = useState(false)
+  const [moreLooks, setMoreLooks] = useState([])
 
   useEffect(() => {
-    if (outfit) document.title = `${outfit.title} — Attire`
-  }, [outfit])
+    fetch(`http://localhost:3000/api/products/${lookId}`)
+      .then(res => {
+        if (!res.ok) throw new Error('not found')
+        return res.json()
+      })
+      .then(data => {
+        setOutfit(data)
+        document.title = `${data.name} — Attire`
+      })
+      .catch(() => setNotFound(true))
 
-  if (!outfit) return <Navigate to="/" replace />
+    fetch('http://localhost:3000/api/products')
+      .then(res => res.json())
+      .then(all => setMoreLooks(all.filter(o => o._id !== lookId).slice(0, 3)))
+  }, [lookId])
 
-  const total = outfitTotal(outfit)
-  const moreLooks = OUTFITS.filter((o) => o.id !== outfit.id).slice(0, 3)
+  if (notFound) return <Navigate to="/" replace />
+  if (!outfit) return <p>Loading…</p>
+
+  const total = outfit.items.reduce((sum, i) => sum + i.price, 0)
 
   return (
     <main className="wrap product-section">
@@ -23,14 +40,12 @@ export default function Product() {
 
       <div className="product-layout">
         <div className="product-img-wrap">
-          <img src={outfit.coverImage} alt={outfit.title} />
-          <Tag look={outfit.look} price={total} />
+          <SmartBgImage src={outfit.mainImage} alt={outfit.name} style={{ width: '100%', height: '100%' }} />
         </div>
-
         <div className="product-info">
-          <p id="product-season">{outfit.season}</p>
-          <h1>{outfit.title}</h1>
-          <p id="product-blurb">{outfit.blurb}</p>
+          {outfit.category && <p id="product-season">{outfit.category}</p>}
+          <h1>{outfit.name}</h1>
+          <p id="product-blurb">{outfit.description}</p>
 
           <div className="shop-head">
             <span>Shop this look</span>
@@ -46,7 +61,8 @@ export default function Product() {
                   <p className="item-name">{item.name}</p>
                 </div>
                 <div className="item-price">{money(item.price)}</div>
-                <a className="btn solid item-buy" href={item.buyUrl} target="_blank" rel="noopener noreferrer">
+                <a className="btn solid item-buy" href={item.buyUrl}
+                  target="_blank" rel="sponsored noopener noreferrer">
                   Shop item →
                 </a>
               </li>
@@ -59,9 +75,6 @@ export default function Product() {
           </div>
 
           <div className="pin-cta">
-            <a className="btn pin" href={outfit.pinUrl} target="_blank" rel="noopener noreferrer">
-              See it on Pinterest
-            </a>
             <Link className="btn" to="/">More looks like this</Link>
           </div>
         </div>
@@ -69,14 +82,11 @@ export default function Product() {
 
       <section className="more-looks">
         <div className="section-head">
-          <div>
-            <span className="eyebrow">Keep browsing</span>
-            <h2>Other looks</h2>
-          </div>
+          <div><span className="eyebrow">Keep browsing</span><h2>Other looks</h2></div>
         </div>
         <div className="more-grid">
           {moreLooks.map((o) => (
-            <OutfitCard key={o.id} outfit={o} small showSeason={false} />
+            <OutfitCard key={o._id} outfit={o} small showSeason={false} />
           ))}
         </div>
       </section>

@@ -188,56 +188,117 @@ function Sidebar({ tab, setTab }) {
 }
 
 function AddProductForm({ onAdd, onClose }) {
-  const [form, setForm] = useState({ name: "", description: "" });
+  const [form, setForm] = useState({ name: "", description: "", category: "" });
+
   const [mainImage, setMainImage] = useState(null);
-  const [images, setImages] = useState([]);
+  const [mainImageFile, setMainImageFile] = useState(null);
+
+  // Each item: { brand, name, price, buyUrl, imageFile, imagePreview }
+  const [items, setItems] = useState([
+    { brand: "", name: "", price: "", buyUrl: "", imageFile: null, imagePreview: null },
+  ]);
+
   const [error, setError] = useState("");
-
+  const [submitting, setSubmitting] = useState(false);
   const mainInputRef = useRef(null);
-  const galleryInputRef = useRef(null);
-
-  const readFile = (file, cb) => {
-    const reader = new FileReader();
-    reader.onload = (e) => cb(e.target.result);
-    reader.readAsDataURL(file);
-  };
 
   const handleMainImage = (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    readFile(file, (dataUrl) => setMainImage(dataUrl));
-    e.target.value = ""; // allow re-selecting the same file later
-  };
-
-  const handleGalleryImages = (e) => {
-    const files = Array.from(e.target.files || []);
-    files.forEach((file) => {
-      readFile(file, (dataUrl) => setImages((prev) => [...prev, dataUrl]));
-    });
+    setMainImageFile(file);
+    setMainImage(URL.createObjectURL(file));
     e.target.value = "";
   };
 
-  const removeGalleryImage = (index) => {
-    setImages((prev) => prev.filter((_, i) => i !== index));
+  const updateItem = (index, field, value) => {
+    setItems((prev) =>
+      prev.map((it, i) => (i === index ? { ...it, [field]: value } : it))
+    );
   };
 
-  const submit = () => {
+  const handleItemImage = (index, e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setItems((prev) =>
+      prev.map((it, i) =>
+        i === index ? { ...it, imageFile: file, imagePreview: URL.createObjectURL(file) } : it
+      )
+    );
+    e.target.value = "";
+  };
+
+  const addItemRow = () => {
+    setItems((prev) => [
+      ...prev,
+      { brand: "", name: "", price: "", buyUrl: "", imageFile: null, imagePreview: null },
+    ]);
+  };
+
+  const removeItemRow = (index) => {
+    setItems((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const submit = async () => {
     if (!form.name.trim() || !form.description.trim()) {
       setError("Fill in name and description.");
       return;
     }
-    if (!mainImage) {
+    if (!mainImageFile) {
       setError("Add a main image.");
       return;
     }
-    onAdd({
-      id: Date.now(),
-      name: form.name.trim(),
-      description: form.description.trim(),
-      mainImage,
-      images,
-    });
-    onClose();
+    if (items.length === 0) {
+      setError("Add at least one item.");
+      return;
+    }
+    for (const it of items) {
+      if (!it.name.trim() || !it.price || !it.buyUrl.trim() || !it.imageFile) {
+        setError("Every item needs a name, price, image, and shop link.");
+        return;
+      }
+    }
+
+    setSubmitting(true);
+    setError("");
+
+    try {
+      const fd = new FormData();
+      fd.append("name", form.name.trim());
+      fd.append("description", form.description.trim());
+      fd.append("category", form.category.trim());
+      fd.append("mainImage", mainImageFile);
+
+      // items metadata as JSON (no images inside)
+      const itemsMeta = items.map((it) => ({
+        brand: it.brand.trim(),
+        name: it.name.trim(),
+        price: Number(it.price),
+        buyUrl: it.buyUrl.trim(),
+      }));
+      fd.append("items", JSON.stringify(itemsMeta));
+
+      // item images, same order as itemsMeta
+      items.forEach((it) => fd.append("itemImages", it.imageFile));
+
+      const res = await fetch("http://localhost:3000/api/products", {
+        method: "POST",
+        body: fd,
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setError(data.error || "Failed to save product.");
+        setSubmitting(false);
+        return;
+      }
+
+      onAdd(data);
+      onClose();
+    } catch (err) {
+      setError("Could not reach server.");
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -251,13 +312,14 @@ function AddProductForm({ onAdd, onClose }) {
       <div
         onClick={(e) => e.stopPropagation()}
         style={{
-          background: C.surface, borderRadius: 16, padding: 24, width: 420, maxWidth: "100%",
+          background: C.surface, borderRadius: 16, padding: 24, width: 480, maxWidth: "100%",
+          maxHeight: "90vh", overflowY: "auto",
           border: `1px solid ${C.line}`,
         }}
       >
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 18 }}>
           <div style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 16, fontWeight: 600, color: C.ink }}>
-            Add product
+            Add look
           </div>
           <button onClick={onClose} style={{ border: "none", background: "none", cursor: "pointer", color: C.inkSoft }}>
             <X size={18} />
@@ -266,7 +328,7 @@ function AddProductForm({ onAdd, onClose }) {
 
         <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
           {/* Main image */}
-          <Field label="Main image">
+          <Field label="Main image (full outfit)">
             <input
               ref={mainInputRef}
               type="file"
@@ -278,14 +340,11 @@ function AddProductForm({ onAdd, onClose }) {
               <div style={{ position: "relative", width: 96, height: 96 }}>
                 <img
                   src={mainImage}
-                  alt="Main product"
-                  style={{
-                    width: 96, height: 96, objectFit: "cover", borderRadius: 10,
-                    border: `1px solid ${C.line}`,
-                  }}
+                  alt="Main look"
+                  style={{ width: 96, height: 96, objectFit: "cover", borderRadius: 10, border: `1px solid ${C.line}` }}
                 />
                 <button
-                  onClick={() => setMainImage(null)}
+                  onClick={() => { setMainImage(null); setMainImageFile(null); }}
                   style={{
                     position: "absolute", top: -6, right: -6, width: 20, height: 20,
                     borderRadius: "50%", background: C.ink, color: "#fff", border: "none",
@@ -310,89 +369,154 @@ function AddProductForm({ onAdd, onClose }) {
             )}
           </Field>
 
-          {/* Product name */}
-          <Field label="Product name">
+          <Field label="Title">
             <input
               value={form.name}
               onChange={(e) => setForm({ ...form, name: e.target.value })}
-              placeholder="e.g. Foldable Travel Pillow"
+              placeholder="e.g. Forest Walk"
               style={inputStyle}
             />
           </Field>
 
-          {/* Description */}
           <Field label="Description">
             <textarea
               value={form.description}
               onChange={(e) => setForm({ ...form, description: e.target.value })}
-              placeholder="Short description of the product"
+              placeholder="Short description of the look"
               rows={3}
               style={{ ...inputStyle, resize: "vertical", fontFamily: "'Inter', sans-serif" }}
             />
           </Field>
 
-          {/* Gallery images */}
-          <Field label="Item images">
+          <Field label="Category">
             <input
-              ref={galleryInputRef}
-              type="file"
-              accept="image/*"
-              multiple
-              onChange={handleGalleryImages}
-              style={{ display: "none" }}
+              value={form.category}
+              onChange={(e) => setForm({ ...form, category: e.target.value })}
+              placeholder="e.g. Autumn"
+              style={inputStyle}
             />
-            <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-              {images.map((img, i) => (
-                <div key={i} style={{ position: "relative", width: 64, height: 64 }}>
-                  <img
-                    src={img}
-                    alt={`Item ${i + 1}`}
-                    style={{
-                      width: 64, height: 64, objectFit: "cover", borderRadius: 8,
-                      border: `1px solid ${C.line}`,
-                    }}
-                  />
-                  <button
-                    onClick={() => removeGalleryImage(i)}
-                    style={{
-                      position: "absolute", top: -6, right: -6, width: 18, height: 18,
-                      borderRadius: "50%", background: C.ink, color: "#fff", border: "none",
-                      display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer",
-                    }}
-                  >
-                    <X size={10} />
-                  </button>
-                </div>
-              ))}
-              <button
-                onClick={() => galleryInputRef.current?.click()}
+          </Field>
+
+          {/* Items */}
+          <div>
+            <div style={{ fontSize: 12.5, fontWeight: 600, color: C.ink, marginBottom: 8 }}>
+              Shop this look
+            </div>
+
+            {items.map((item, i) => (
+              <div
+                key={i}
                 style={{
-                  width: 64, height: 64, borderRadius: 8, border: `1px dashed ${C.line}`,
-                  background: "#FCFCFA", display: "flex", alignItems: "center", justifyContent: "center",
-                  cursor: "pointer", color: C.inkSoft,
+                  border: `1px solid ${C.line}`, borderRadius: 10, padding: 12,
+                  marginBottom: 10, display: "flex", flexDirection: "column", gap: 8,
                 }}
               >
-                <Plus size={18} />
-              </button>
-            </div>
-          </Field>
+                <div style={{ display: "flex", gap: 10, alignItems: "flex-start" }}>
+                  <input
+                    id={`item-img-${i}`}
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => handleItemImage(i, e)}
+                    style={{ display: "none" }}
+                  />
+                  {item.imagePreview ? (
+                    <img
+                      src={item.imagePreview}
+                      alt={`Item ${i + 1}`}
+                      onClick={() => document.getElementById(`item-img-${i}`).click()}
+                      style={{ width: 56, height: 56, objectFit: "cover", borderRadius: 8, cursor: "pointer", border: `1px solid ${C.line}` }}
+                    />
+                  ) : (
+                    <button
+                      onClick={() => document.getElementById(`item-img-${i}`).click()}
+                      style={{
+                        width: 56, height: 56, borderRadius: 8, border: `1px dashed ${C.line}`,
+                        background: "#FCFCFA", display: "flex", alignItems: "center", justifyContent: "center",
+                        cursor: "pointer", color: C.inkSoft, flexShrink: 0,
+                      }}
+                    >
+                      <ImagePlus size={16} />
+                    </button>
+                  )}
+
+                  <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 6 }}>
+                    <input
+                      value={item.brand}
+                      onChange={(e) => updateItem(i, "brand", e.target.value)}
+                      placeholder="Brand (e.g. Néra Studio)"
+                      style={inputStyle}
+                    />
+                    <input
+                      value={item.name}
+                      onChange={(e) => updateItem(i, "name", e.target.value)}
+                      placeholder="Item name (e.g. Ribbed Rust Cardigan)"
+                      style={inputStyle}
+                    />
+                  </div>
+
+                  {items.length > 1 && (
+                    <button
+                      onClick={() => removeItemRow(i)}
+                      style={{ border: "none", background: "none", cursor: "pointer", color: C.inkSoft, flexShrink: 0 }}
+                    >
+                      <X size={16} />
+                    </button>
+                  )}
+                </div>
+
+                <div style={{ display: "flex", gap: 8 }}>
+                  <input
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    value={item.price}
+                    onChange={(e) => updateItem(i, "price", e.target.value)}
+                    placeholder="Price"
+                    style={{ ...inputStyle, width: 100 }}
+                  />
+                  <input
+                    type="url"
+                    value={item.buyUrl}
+                    onChange={(e) => updateItem(i, "buyUrl", e.target.value)}
+                    placeholder="Shop link (https://...)"
+                    style={{ ...inputStyle, flex: 1 }}
+                  />
+                </div>
+              </div>
+            ))}
+
+            <button
+              onClick={addItemRow}
+              style={{
+                width: "100%", padding: "8px 0", borderRadius: 8, border: `1px dashed ${C.line}`,
+                background: "#FCFCFA", color: C.inkSoft, fontSize: 12.5, cursor: "pointer",
+                display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
+              }}
+            >
+              <Plus size={14} /> Add item
+            </button>
+          </div>
 
           {error && <div style={{ color: C.danger, fontSize: 12.5 }}>{error}</div>}
 
           <button
             onClick={submit}
+            disabled={submitting}
             style={{
               marginTop: 4, background: C.accent, color: "#fff", border: "none",
-              borderRadius: 9, padding: "10px 0", fontSize: 13.5, fontWeight: 500, cursor: "pointer",
+              borderRadius: 9, padding: "10px 0", fontSize: 13.5, fontWeight: 500,
+              cursor: submitting ? "not-allowed" : "pointer",
+              opacity: submitting ? 0.6 : 1,
             }}
           >
-            Add product
+            {submitting ? "Adding..." : "Add look"}
           </button>
         </div>
       </div>
     </div>
   );
 }
+
 function Field({ label, children }) {
   return (
     <label style={{ display: "flex", flexDirection: "column", gap: 5, flex: 1, fontSize: 12.5, color: C.inkSoft }}>
