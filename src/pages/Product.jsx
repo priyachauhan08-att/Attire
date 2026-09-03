@@ -21,12 +21,18 @@ export default function Product() {
       .then(data => {
         setOutfit(data)
         document.title = `${data.name} — Attire`
+
+        // Fetch all products AFTER we know the current outfit's category
+        fetch(`${import.meta.env.VITE_API_URL}/api/products`)
+          .then(res => res.json())
+          .then(all => {
+            const sameCategory = all.filter(
+              o => o._id !== lookId && o.category === data.category
+            )
+            setMoreLooks(sameCategory.slice(0, 3))
+          })
       })
       .catch(() => setNotFound(true))
-
-    fetch(`${import.meta.env.VITE_API_URL}/products`)
-      .then(res => res.json())
-      .then(all => setMoreLooks(all.filter(o => o._id !== lookId).slice(0, 3)))
   }, [lookId])
 
   if (notFound) return <Navigate to="/" replace />
@@ -80,16 +86,18 @@ export default function Product() {
         </div>
       </div>
 
-      <section className="more-looks">
-        <div className="section-head">
-          <div><span className="eyebrow">Keep browsing</span><h2>Other looks</h2></div>
-        </div>
-        <div className="more-grid">
-          {moreLooks.map((o) => (
-            <OutfitCard key={o._id} outfit={o} small showSeason={false} />
-          ))}
-        </div>
-      </section>
+      {moreLooks.length > 0 && (
+        <section className="more-looks">
+          <div className="section-head">
+            <div><span className="eyebrow">Keep browsing</span><h2>You may like this</h2></div>
+          </div>
+          <div className="more-grid">
+            {moreLooks.map((o) => (
+              <OutfitCard key={o._id} outfit={o} small showSeason={false} />
+            ))}
+          </div>
+        </section>
+      )}
     </main>
   )
 }
