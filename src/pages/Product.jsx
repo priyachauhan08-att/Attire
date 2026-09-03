@@ -13,7 +13,7 @@ export default function Product() {
   const [moreLooks, setMoreLooks] = useState([])
 
   useEffect(() => {
-    fetch(`http://localhost:3000/api/products/${lookId}`)
+    fetch(`${import.meta.env.VITE_API_URL}/api/products/${lookId}`)
       .then(res => {
         if (!res.ok) throw new Error('not found')
         return res.json()
@@ -24,7 +24,7 @@ export default function Product() {
       })
       .catch(() => setNotFound(true))
 
-    fetch('http://localhost:3000/api/products')
+    fetch(`${import.meta.env.VITE_API_URL}/products`)
       .then(res => res.json())
       .then(all => setMoreLooks(all.filter(o => o._id !== lookId).slice(0, 3)))
   }, [lookId])

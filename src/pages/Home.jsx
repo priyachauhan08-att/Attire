@@ -5,15 +5,17 @@ import Tag from '../components/Tag.jsx'
 import OutfitCard from '../components/OutfitCard.jsx'
 import HeroCarousel from '../components/HeroCarousel.jsx'
 
+
 export default function Home() {
 
   const [currentHero, setCurrentHero] = useState(OUTFITS[0])
   const [outfits, setOutfits] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
+  const apiUrl = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
-    fetch('http://localhost:3000/api/products')
+    fetch(`${apiUrl}/api/products`)
       .then(res => {
         if (!res.ok) throw new Error(`Server error: ${res.status}`)
         return res.json()

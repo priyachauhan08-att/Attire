@@ -111,7 +111,7 @@ export const OUTFITS = [
 export const BRAND = {
   pinterestUrl: "https://www.pinterest.com/yourusername/",
   instagramUrl: "",
-  contactEmail: "hello@yourattire.com"
+  contactEmail: "priyachauhan4824@gmail.com"
 };
 
 export const outfitTotal = (outfit) =>
