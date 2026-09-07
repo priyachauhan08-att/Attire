@@ -182,7 +182,7 @@
   width: 100%;
   max-width: 380px;
   background: #7cd5c871;
-  border: 1px solid var(--border) ;
+  border: 1px solid var(--border);
   border-radius: 12px;
   padding: 32px 28px;
   display: flex;
@@ -342,8 +342,27 @@ input:disabled {
   opacity: 0.6;
 }
 
-/* ---------- responsive ---------- */
+/* HTML: <div class="loader"></div> */
+.loader {
+  color: #000;
+  width: 4px;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  box-shadow: 19px 0 0 7px, 38px 0 0 3px, 57px 0 0 0;
+  transform: translateX(-38px);
+  animation: l21 .5s infinite alternate linear;
+}
 
+@keyframes l21 {
+  50%  {box-shadow: 19px 0 0 3px, 38px 0 0 7px, 57px 0 0 3px}
+  100% {box-shadow: 19px 0 0 0  , 38px 0 0 3px, 57px 0 0 7px}
+}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+
+/* Tablets / small laptops — stack the two panels */
 @media (max-width: 900px) {
   .login-shell {
     grid-template-columns: 1fr;
@@ -368,27 +387,123 @@ input:disabled {
   }
 }
 
+/* Phones — tighten the brand panel, since it's mostly diagnostics
+   flavor text and shouldn't eat the screen before the form appears */
+@media (max-width: 640px) {
+  .login-brand {
+    padding: 20px 18px;
+  }
+
+  .brand-body {
+    margin: 20px 0 18px;
+  }
+
+  .brand-body h1 {
+    font-size: clamp(22px, 6vw, 28px);
+    margin-bottom: 10px;
+  }
+
+  .brand-body p {
+    font-size: 13.5px;
+  }
+
+  /* Collapse the live status feed on phones — it's decorative and
+     takes vertical space users need to reach the actual login form */
+  .status-feed {
+    height: 100px;
+    font-size: 11px;
+  }
+
+  .login-main {
+    padding: 20px 16px 32px;
+  }
+
+  .login-card {
+    max-width: 100%;
+    padding: 24px 20px;
+    border-radius: 10px;
+    gap: 15px;
+  }
+
+  .login-card-header h2 {
+    font-size: 24px;
+  }
+
+  .login-card-header p {
+    font-size: 13px;
+  }
+
+  /* Prevent iOS Safari from auto-zooming on input focus —
+     it forces this when font-size is under 16px */
+  input[type='text'],
+  input[type='password'] {
+    font-size: 16px;
+    padding: 12px 12px;
+  }
+
+  .submit-btn {
+    padding: 13px 16px;
+    font-size: 15px;
+  }
+}
+
+/* Small phones */
 @media (max-width: 480px) {
   .status-line {
     grid-template-columns: 50px 1fr auto;
   }
+
   .status-detail {
     display: none;
   }
+
+  .brand-top {
+    font-size: 11px;
+  }
+
+  .brand-env {
+    padding: 2px 6px;
+    font-size: 10px;
+  }
+
+  .login-footer {
+    flex-wrap: wrap;
+    gap: 6px;
+    font-size: 11px;
+  }
 }
 
-/* HTML: <div class="loader"></div> */
-.loader {
-  color: #000;
-  width: 4px;
-  aspect-ratio: 1;
-  border-radius: 50%;
-  box-shadow: 19px 0 0 7px, 38px 0 0 3px, 57px 0 0 0;
-  transform: translateX(-38px);
-  animation: l21 .5s infinite alternate linear;
+/* Very small phones (iPhone SE, older Android) */
+@media (max-width: 360px) {
+  .login-brand {
+    padding: 16px 14px;
+  }
+
+  .status-feed {
+    display: none; /* fully hide decorative feed to save space */
+  }
+
+  .login-card {
+    padding: 20px 16px;
+  }
+
+  .login-card-header h2 {
+    font-size: 21px;
+  }
 }
 
-@keyframes l21 {
-  50%  {box-shadow: 19px 0 0 3px, 38px 0 0 7px, 57px 0 0 3px}
-  100% {box-shadow: 19px 0 0 0  , 38px 0 0 3px, 57px 0 0 7px}
+/* Touch devices — ensure comfortable tap targets regardless of width */
+@media (hover: none) and (pointer: coarse) {
+  .submit-btn {
+    min-height: 46px;
+  }
+
+  input[type='text'],
+  input[type='password'] {
+    min-height: 44px;
+  }
+
+  .field-hint {
+    padding: 4px 0; /* larger tap area for the "forgot password" link */
+  }
 }

@@ -1,9 +1,5 @@
 /* ============================================================
    ATTIRE — design tokens
-   Palette: ink black / bone paper / brass gold / brick rose
-   Type: Fraunces (display) + Work Sans (body/UI) + Space Mono (tags)
-   Signature: the rotated "swing tag" — a garment price-tag motif
-   that recurs on the hero, every outfit card, and the product page.
    ============================================================ */
 
 :root{
@@ -115,7 +111,7 @@ h1,h2{ font-style: normal; }
   border-color: var(--rose);
   color: var(--rose);
 }
-/* ---------- swing tag (signature element) ---------- */
+/* ---------- swing tag ---------- */
 .tag{
   position: relative;
   display: inline-flex;
@@ -200,14 +196,6 @@ h1,h2{ font-style: normal; }
   justify-content: space-between;
 }
 
-@media (max-width: 720px){
-  .site-nav .wrap{ height: 64px; }
-  .nav-links{ gap: 16px; }
-}
-/* ============================================================
-   ATTIRE — page layouts
-   ============================================================ */
-
 /* ---------- HERO ---------- */
 .hero{
   padding: 56px 0 80px;
@@ -263,7 +251,7 @@ h1,h2{ font-style: normal; }
   color: var(--ink-soft);
 }
 
-/* ---------- outfit grid (Pinterest-style masonry) ---------- */
+/* ---------- outfit grid ---------- */
 .outfit-grid{
   column-count: 3;
   column-gap: 24px;
@@ -437,8 +425,90 @@ h1,h2{ font-style: normal; }
   font-family: var(--mono); font-size: 12px; color: #8a8578; line-height: 2;
 }
 
-/* ---------- responsive ---------- */
+/* ---------- HeroCarousel ---------- */
+.image-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  max-width: 800px;
+  width: 100%;
+  margin: 0 auto;
+  overflow: hidden;
+  border-radius: 1rem;
+  background-color: #fff;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08);
+  height: 100%;
+}
+.image-container img {
+  max-width: 100%;
+  max-height: 100%;
+  width: 100%;
+  border-radius: 0.75rem;
+  object-fit: cover;
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+img.hidden { display: none; }
+img.block { display: block; animation: fadeIn 0.6s ease; }
+.image-actions {
+  position: absolute;
+  right: 20px;
+  bottom: 20px;
+  display: flex;
+  gap: 10px;
+  z-index: 10;
+}
+.image-action-btn {
+  width: 42px;
+  height: 42px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.image-action-btn:hover { transform: scale(1.08); background: white; }
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(0.98); }
+  to { opacity: 1; transform: scale(1); }
+}
+.nav-button {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 44px;
+  height: 44px;
+  background-color: rgba(0, 0, 0, 0.4);
+  color: #fff;
+  border: none;
+  border-radius: 50%;
+  font-size: 1.5rem;
+  font-weight: normal;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.8;
+  transition: background-color 0.3s ease, opacity 0.3s ease;
+  padding: 0;
+  line-height: 1;
+  z-index: 1;
+}
+.nav-button.left { left: 1rem; }
+.nav-button.right { right: 1rem; }
+.nav-button:hover { background-color: rgba(255, 255, 255, 0.6); opacity: 1; }
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+
 @media (max-width: 900px){
+  .site-nav .wrap{ height: 64px; }
+  .nav-links{ gap: 16px; }
+
   .hero .wrap{ grid-template-columns: 1fr; }
   .hero{ padding-top: 28px; }
   .outfit-grid{ column-count: 2; }
@@ -448,18 +518,90 @@ h1,h2{ font-style: normal; }
   .about-layout{ grid-template-columns: 1fr; }
   .item-row{ grid-template-columns: 56px 1fr auto; row-gap: 10px; }
   .item-buy{ grid-column: 1 / -1; justify-self: start; }
+
+  .contact-card{ padding: 32px 24px; }
 }
+
+@media (max-width: 640px){
+  .wrap{ padding: 0 20px; }
+
+  /* nav: shrink logo, tighten link spacing, keep single row */
+  .site-nav .wrap{ height: 58px; }
+  .logo{ font-size: 18px; }
+  .nav-links{ gap: 12px; }
+  .nav-links a, .nav-links button{ font-size: 10.5px; }
+
+  /* hero copy scales down and tightens spacing */
+  .hero{ padding: 24px 0 48px; }
+  .hero-copy p{ margin: 16px 0 24px; font-size: 15.5px; }
+  .hero-cta{ gap: 10px; }
+  .hero-cta .btn{ flex: 1 1 auto; justify-content: center; }
+
+  /* buttons get a touch-friendly minimum */
+  .btn{ padding: 12px 18px; font-size: 11.5px; }
+
+  .section-head{ margin-bottom: 22px; padding-bottom: 14px; }
+  .section-head h2{ font-size: 24px; }
+
+  /* product page: image no longer sticky-adjacent, tighten spacing */
+  .product-section{ padding-top: 24px; }
+  .back-link{ margin-bottom: 18px; }
+  #product-title{ font-size: clamp(26px, 7vw, 34px); }
+  #product-blurb{ margin: 12px 0 24px; font-size: 15px; }
+  .product-total-row b{ font-size: 18px; }
+  .pin-cta .btn{ flex: 1 1 100%; justify-content: center; }
+
+  .more-looks{ margin: 56px 0 32px; }
+
+  /* about/contact */
+  .about-hero{ padding: 32px 0 24px; }
+  .about-layout{ gap: 40px; padding: 12px 0 48px; }
+  .contact-card{ padding: 28px 20px; }
+  .contact-card h3{ font-size: 22px; }
+
+  /* footer stacks and tightens */
+  .site-footer{ margin-top: 56px; padding: 40px 0 24px; }
+  .site-footer .wrap{ flex-direction: column; align-items: flex-start; gap: 18px; }
+  .footer-links{ flex-wrap: wrap; gap: 14px 18px; }
+  .footer-bottom .wrap{ flex-direction: column; align-items: flex-start; gap: 8px; }
+
+  /* HeroCarousel */
+  .nav-button{ width: 38px; height: 38px; font-size: 1.2rem; }
+  .nav-button.left{ left: 0.6rem; }
+  .nav-button.right{ right: 0.6rem; }
+  .image-actions{ right: 12px; bottom: 12px; gap: 8px; }
+  .image-action-btn{ width: 36px; height: 36px; }
+}
+
 @media (max-width: 560px){
   .outfit-grid{ column-count: 1; }
   .more-grid{ grid-template-columns: 1fr; }
-  .wrap{ padding: 0 20px; }
-    .look-card-img{
-    aspect-ratio: 3 / 4;
-  }
+  .look-card-img{ aspect-ratio: 3 / 4; }
 }
 
 @media (max-width: 480px) {
-  .hero-img-wrap {
-    aspect-ratio: 2 / 4;
+  .hero-img-wrap { aspect-ratio: 2 / 4; }
+
+  /* nav: if links still crowd the logo, let them wrap under it */
+  .site-nav .wrap{ flex-wrap: wrap; height: auto; padding: 10px 0; row-gap: 8px; }
+  .nav-links{ width: 100%; justify-content: flex-start; overflow-x: auto; }
+
+  .item-row img{ width: 56px; height: 70px; }
+  .item-name{ font-size: 14px; }
+  .item-price{ font-size: 13px; }
+
+  .contact-card .btn.pin,
+  .contact-card .btn.outline{ padding: 14px; font-size: 12px; }
+}
+
+/* Touch devices — guarantee comfortable tap targets regardless of width */
+@media (hover: none) and (pointer: coarse) {
+  .btn,
+  .nav-links a,
+  .nav-links button,
+  .nav-button,
+  .image-action-btn{
+    min-height: 40px;
   }
+  .item-buy{ min-height: 42px; }
 }
