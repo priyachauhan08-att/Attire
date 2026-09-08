@@ -117,4 +117,4 @@ export const BRAND = {
 export const outfitTotal = (outfit) =>
   outfit.items.reduce((sum, i) => sum + i.price, 0);
 
-export const money = (n) => "$" + n.toFixed(0);
+export const money = (n) => "₹" + n.toFixed(0);
