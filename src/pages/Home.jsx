@@ -1,10 +1,8 @@
-import { Link } from 'react-router-dom'
 import { useState, useEffect } from 'react'
 import { OUTFITS, BRAND } from '../data.js'
-import Tag from '../components/Tag.jsx'
 import OutfitCard from '../components/OutfitCard.jsx'
 import HeroCarousel from '../components/HeroCarousel.jsx'
-
+import TrendingSection from '../components/TrendingSection.jsx'
 
 export default function Home() {
 
@@ -58,13 +56,6 @@ export default function Home() {
 
             <div className="hero-cta">
 
-              <Link
-                className="btn solid"
-                to={`/look/${currentHero.id}`}
-              >
-                View this look
-              </Link>
-
               <a
                 className="btn pin"
                 href={BRAND.pinterestUrl}
@@ -83,15 +74,6 @@ export default function Home() {
             <HeroCarousel
               onImageChange={handleImageChange}
             />
-
-            <Tag
-              look={currentHero.look}
-              price={currentHero.items.reduce(
-                (sum, item) => sum + item.price,
-                0
-              )}
-            />
-
           </div>
 
         </div>
@@ -116,6 +98,8 @@ export default function Home() {
             <OutfitCard key={outfit._id} outfit={outfit} />
           ))}
         </section>
+
+        <TrendingSection title="Most Viewed Looks" endpoint="trending/viewed" limit={3} />
       </main>
     </>
   )

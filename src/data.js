@@ -109,7 +109,7 @@ export const OUTFITS = [
 
 /* ---------- brand / contact config ---------- */
 export const BRAND = {
-  pinterestUrl: "https://www.pinterest.com/yourusername/",
+  pinterestUrl: "https://pin.it/20D30Jqlq",
   instagramUrl: "",
   contactEmail: "priyachauhan4824@gmail.com"
 };

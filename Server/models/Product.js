@@ -61,6 +61,14 @@ const productSchema = new mongoose.Schema(
       type: [itemSchema], // shoppable items within the look
       validate: [(arr) => arr.length > 0, "At least one item is required"],
     },
+    views: {
+      type: Number,
+      default: 0,
+    },
+    clicks: {
+      type: Number,
+      default: 0,
+    },
   },
   {
     timestamps: true,

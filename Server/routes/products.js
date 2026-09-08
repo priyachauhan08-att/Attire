@@ -3,6 +3,27 @@ const router = express.Router();
 const Product = require('../models/Product');
 const upload = require('../middleware/upload');
 
+// TRENDING — must come BEFORE /:id routes, or "trending" gets treated as an id
+router.get('/trending/viewed', async (req, res) => {
+  try {
+    const limit = parseInt(req.query.limit) || 6;
+    const products = await Product.find().sort({ views: -1 }).limit(limit);
+    res.json(products);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.get('/trending/clicked', async (req, res) => {
+  try {
+    const limit = parseInt(req.query.limit) || 6;
+    const products = await Product.find().sort({ clicks: -1 }).limit(limit);
+    res.json(products);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // READ ALL
 router.get('/', async (req, res) => {
   try {
@@ -21,6 +42,36 @@ router.get('/:id', async (req, res) => {
       return res.status(404).json({ error: 'Product not found' });
     }
     res.json(product);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// TRACK A VIEW (fires when someone opens a product page)
+router.patch('/:id/view', async (req, res) => {
+  try {
+    const product = await Product.findByIdAndUpdate(
+      req.params.id,
+      { $inc: { views: 1 } },
+      { new: true }
+    );
+    if (!product) return res.status(404).json({ error: 'Product not found' });
+    res.json({ views: product.views });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// TRACK A CLICK (fires when someone clicks a "Shop item" buy link)
+router.patch('/:id/click', async (req, res) => {
+  try {
+    const product = await Product.findByIdAndUpdate(
+      req.params.id,
+      { $inc: { clicks: 1 } },
+      { new: true }
+    );
+    if (!product) return res.status(404).json({ error: 'Product not found' });
+    res.json({ clicks: product.clicks });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

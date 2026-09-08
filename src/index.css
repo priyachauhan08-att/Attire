@@ -111,6 +111,32 @@ h1,h2{ font-style: normal; }
   border-color: var(--rose);
   color: var(--rose);
 }
+
+/* ---------- hamburger button — hidden on desktop ---------- */
+.menu-toggle{
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+  z-index: 50;
+}
+.menu-toggle span{
+  display: block;
+  width: 100%;
+  height: 2px;
+  background: var(--ink);
+  transition: transform .25s ease, opacity .25s ease;
+}
+.menu-toggle.open span:nth-child(1){ transform: translateY(7px) rotate(45deg); }
+.menu-toggle.open span:nth-child(2){ opacity: 0; }
+.menu-toggle.open span:nth-child(3){ transform: translateY(-7px) rotate(-45deg); }
+
 /* ---------- swing tag ---------- */
 .tag{
   position: relative;
@@ -221,14 +247,10 @@ h1,h2{ font-style: normal; }
 }
 .hero-cta{ display: flex; gap: 14px; flex-wrap: wrap; }
 
+/* .hero-img-wrap is now a plain positioning wrapper only —
+   .image-container (below) owns all sizing/cropping for the carousel */
 .hero-img-wrap{
   position: relative;
-  aspect-ratio: 4/5;
-  overflow: hidden;
-  background: var(--bone);
-}
-.hero-img-wrap img{
-  width: 100%; height: 100%; object-fit: cover;
 }
 .hero-img-wrap .tag{
   position: absolute;
@@ -389,6 +411,101 @@ h1,h2{ font-style: normal; }
   gap: 24px;
 }
 
+/* ---------- like / share buttons ---------- */
+.blurb-row{
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin: 18px 0 36px;
+}
+.blurb-row #product-blurb{
+  margin: 0;
+  flex: 1;
+}
+.blurb-actions{
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.icon-btn{
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: 1px solid var(--line);
+  background: var(--paper);
+  color: var(--ink-soft);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.15s ease, border-color 0.2s ease, color 0.2s ease, background 0.2s ease;
+}
+.icon-btn:hover{
+  border-color: var(--rose);
+  color: var(--rose);
+}
+.icon-btn:active{
+  transform: scale(0.9);
+}
+
+/* like button — heart fills and pops on activation */
+.icon-btn.liked{
+  border-color: var(--rose);
+  color: var(--rose);
+  background: #f6e9e7;
+  animation: likePop 0.35s ease;
+}
+@keyframes likePop{
+  0%{ transform: scale(1); }
+  40%{ transform: scale(1.25); }
+  100%{ transform: scale(1); }
+}
+
+/* "Link copied" toast — fades in above the share button */
+.share-toast{
+  position: absolute;
+  top: -34px;
+  right: 0;
+  background: var(--ink);
+  color: var(--paper);
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  padding: 5px 10px;
+  border-radius: 4px;
+  white-space: nowrap;
+  animation: toastFade 2s ease forwards;
+  pointer-events: none;
+}
+@keyframes toastFade{
+  0%{ opacity: 0; transform: translateY(4px); }
+  10%{ opacity: 1; transform: translateY(0); }
+  85%{ opacity: 1; }
+  100%{ opacity: 0; }
+}
+
+/* ---------- responsive ---------- */
+@media (max-width: 640px){
+  .blurb-row{
+    margin: 12px 0 24px;
+  }
+  .icon-btn{
+    width: 34px;
+    height: 34px;
+  }
+}
+
+@media (hover: none) and (pointer: coarse){
+  .icon-btn{
+    width: 40px;
+    height: 40px;
+  }
+}
+
 /* ---------- about / contact ---------- */
 .about-hero{ padding: 56px 0 40px; }
 .about-hero h1{ font-size: clamp(34px, 4.4vw, 52px); max-width: 18ch; }
@@ -433,19 +550,44 @@ h1,h2{ font-style: normal; }
   justify-content: center;
   max-width: 800px;
   width: 100%;
+  aspect-ratio: 4 / 5;
   margin: 0 auto;
   overflow: hidden;
   border-radius: 1rem;
-  background-color: #fff;
+  background: var(--bone); /* fallback while backdrop image loads */
   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08);
-  height: 100%;
+}
+
+/* Blurred backdrop layer — same photo, scaled up + blurred, fills the box */
+.image-backdrop {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  filter: blur(32px) saturate(0.85) brightness(0.95);
+  transform: scale(1.15);
+  transition: opacity 0.5s ease;
+}
+.image-backdrop.hidden { opacity: 0; }
+.image-backdrop.block { opacity: 1; }
+
+/* Brand-tinted overlay — rose/gold duotone instead of neutral dark,
+   ties the backdrop back to the site's actual palette */
+.image-backdrop::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(160deg, rgba(162,69,63,0.28) 0%, rgba(236,230,217,0.55) 100%);
+  mix-blend-mode: soft-light;
 }
 .image-container img {
-  max-width: 100%;
-  max-height: 100%;
+  position: relative;
+  z-index: 1;
   width: 100%;
+  height: 100%;
   border-radius: 0.75rem;
-  object-fit: cover;
+  object-fit: contain;
+  object-position: center;
   transition: opacity 0.5s ease, transform 0.5s ease;
 }
 img.hidden { display: none; }
@@ -523,13 +665,43 @@ img.block { display: block; animation: fadeIn 0.6s ease; }
 }
 
 @media (max-width: 640px){
-  .wrap{ padding: 5px 20px; }
+  .wrap{ padding: 0 20px; }
 
-  /* nav: shrink logo, tighten link spacing, keep single row */
+  /* nav: hamburger takes over, logo stays put */
   .site-nav .wrap{ height: 58px; }
   .logo{ font-size: 18px; }
-  .nav-links{ gap: 12px; }
-  .nav-links a, .nav-links button{ font-size: 10.5px; }
+
+  .menu-toggle{ display: flex; }
+
+  .nav-links{
+    position: fixed;
+    top: 58px;
+    left: 0;
+    right: 0;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0;
+    background: var(--paper);
+    border-bottom: 1px solid var(--line);
+    max-height: 0;
+    overflow: hidden;
+    padding: 0 20px;
+    transition: max-height .3s ease, padding .3s ease;
+  }
+  .nav-links.open{
+    max-height: 200px;
+    padding: 14px 20px 20px;
+  }
+  .nav-links a,
+  .nav-links button{
+    width: 100%;
+    padding: 12px 0;
+    font-size: 13px;
+    border-bottom: 1px solid var(--line);
+  }
+  .nav-links button:last-of-type a{
+    border-bottom: none;
+  }
 
   /* hero copy scales down and tightens spacing */
   .hero{ padding: 24px 0 48px; }
@@ -580,12 +752,6 @@ img.block { display: block; animation: fadeIn 0.6s ease; }
 }
 
 @media (max-width: 480px) {
-  .hero-img-wrap { aspect-ratio: 2 / 4; }
-
-  /* nav: if links still crowd the logo, let them wrap under it */
-  .site-nav .wrap{ flex-wrap: wrap; height: auto; padding: 10px 0; row-gap: 8px; }
-  .nav-links{ width: 100%; justify-content: flex-start; overflow-x: auto; }
-
   .item-row img{ width: 56px; height: 70px; }
   .item-name{ font-size: 14px; }
   .item-price{ font-size: 13px; }
@@ -599,6 +765,7 @@ img.block { display: block; animation: fadeIn 0.6s ease; }
   .btn,
   .nav-links a,
   .nav-links button,
+  .menu-toggle,
   .nav-button,
   .image-action-btn{
     min-height: 40px;

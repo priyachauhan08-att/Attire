@@ -1,115 +1,59 @@
-// import React, { useEffect, useState } from 'react';
-// import './HeroCarousel.css';
-
-// const images = [
-//     { id: 1, url: "https://images.pexels.com/photos/29089597/pexels-photo-29089597/free-photo-of-stunning-autumn-beach-sunset-with-waves.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2"},
-//     { id: 2, url: "https://images.pexels.com/photos/691668/pexels-photo-691668.jpeg"},
-//     { id: 3, url: "https://images.pexels.com/photos/2049422/pexels-photo-2049422.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2"},
-//     { id: 4, url: "https://images.pexels.com/photos/325044/pexels-photo-325044.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2"},
-//     { id: 5, url: "https://images.pexels.com/photos/1485894/pexels-photo-1485894.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2"},
-// ]
-
-// const HeroCarousel = () => {
-//     const [currentImageIndex, setCurrentImageIndex] = useState(0);
-
-//     const handlePreviousClick = () => {
-//         setCurrentImageIndex(
-//             currentImageIndex === 0 ? images.length - 1 : currentImageIndex - 1
-//         );
-//     };
-
-//     const handleNextClick = () => {
-//         setCurrentImageIndex((currentImageIndex + 1) % images.length);
-//     };
-
-//     useEffect(() => {
-//         const timer = setTimeout(() => {
-//             handleNextClick();
-//         }, 3000);
-
-//         return () => clearTimeout(timer);
-//     }, [currentImageIndex]);
-
-//     return (
-//             <div className="image-container">
-//                 <button className="nav-button left" onClick={handlePreviousClick}>&lt;</button>
-
-//                 {images.map((image, index) => (
-//                     <img 
-//                         src={image.url} 
-//                         alt="images" 
-//                         className={ currentImageIndex === index ? 'block' : 'hidden'}
-//                         key={image.id} 
-//                     />
-//                 ))}
-
-//                 <button className="nav-button right" onClick={handleNextClick}>&gt;</button>
-
-//             </div>
-//     )
-// }
-
-// export default HeroCarousel
-
-
-
 import React, { useEffect, useState } from 'react';
 import './HeroCarousel.css';
 import { LuMaximize, LuShoppingBag } from "react-icons/lu";
 import { useNavigate } from 'react-router-dom';
 
-const images = [
-  {
-    id: 1,
-    url: "https://images.pexels.com/photos/29089597/pexels-photo-29089597/free-photo-of-stunning-autumn-beach-sunset-with-waves.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2"
-  },
-  {
-    id: 2,
-    url: "https://images.pexels.com/photos/691668/pexels-photo-691668.jpeg"
-  },
-  {
-    id: 3,
-    url: "https://images.pexels.com/photos/2049422/pexels-photo-2049422.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2"
-  },
-  {
-    id: 4,
-    url: "https://images.pexels.com/photos/325044/pexels-photo-325044.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2"
-  },
-  {
-    id: 5,
-    url: "https://images.pexels.com/photos/1485894/pexels-photo-1485894.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2"
-  },
-];
-
 const HeroCarousel = ({ onImageChange }) => {
-
+  const [looks, setLooks] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   const navigate = useNavigate();
 
-  const currentImage = images[currentImageIndex];
+  useEffect(() => {
+    const apiUrl = import.meta.env.VITE_API_URL;
+
+    fetch(`${apiUrl}/api/products/trending/viewed?limit=5`)
+      .then(res => res.json())
+      .then(data => {
+        if (Array.isArray(data) && data.length > 0) {
+          setLooks(data);
+        } else {
+          // fallback: no trending data yet (e.g. brand new store) —
+          // pull the regular product list instead so the hero isn't empty
+          return fetch(`${apiUrl}/api/products`)
+            .then(res => res.json())
+            .then(all => setLooks(Array.isArray(all) ? all.slice(0, 5) : []));
+        }
+      })
+      .catch(() => setLooks([]))
+      .finally(() => setLoading(false));
+  }, []);
+
+  const currentImage = looks[currentImageIndex];
 
   const handlePreviousClick = () => {
     setCurrentImageIndex((prevIndex) =>
-      prevIndex === 0 ? images.length - 1 : prevIndex - 1
+      prevIndex === 0 ? looks.length - 1 : prevIndex - 1
     );
   };
 
   const handleNextClick = () => {
     setCurrentImageIndex((prevIndex) =>
-      (prevIndex + 1) % images.length
+      (prevIndex + 1) % looks.length
     );
   };
 
   const handleMaximize = () => {
-    window.open(currentImage.url, '_blank');
+    window.open(currentImage.mainImage, '_blank');
   };
 
   const handleProductClick = () => {
-    navigate(`/look/${currentImage.id}`);
+    navigate(`/look/${currentImage._id}`);
   };
 
   useEffect(() => {
+    if (looks.length === 0 || !currentImage) return;
 
     onImageChange(currentImage);
 
@@ -118,8 +62,15 @@ const HeroCarousel = ({ onImageChange }) => {
     }, 3000);
 
     return () => clearTimeout(timer);
+  }, [currentImageIndex, looks]);
 
-  }, [currentImageIndex]);
+  if (loading) {
+    return <div className="image-container"><p style={{ padding: 24 }}>Loading looks…</p></div>;
+  }
+
+  if (looks.length === 0) {
+    return null; // nothing to show — no products yet
+  }
 
   return (
     <div className="image-container">
@@ -131,46 +82,38 @@ const HeroCarousel = ({ onImageChange }) => {
         &lt;
       </button>
 
-      {images.map((image, index) => (
-        <React.Fragment key={image.id}>
+{looks.map((look, index) => (
+  <React.Fragment key={look._id}>
 
-          <img
-            src={image.url}
-            alt={`Look ${image.id}`}
-            className={
-              currentImageIndex === index
-                ? 'block'
-                : 'hidden'
-            }
-          />
+    {/* Blurred backdrop — same image, scaled + blurred, fills empty space */}
+    <div
+      className={`image-backdrop ${currentImageIndex === index ? 'block' : 'hidden'}`}
+      style={{ backgroundImage: `url(${look.mainImage})` }}
+    />
 
-          {currentImageIndex === index && (
-            <div className="image-actions">
+    <img
+      src={look.mainImage}
+      alt={look.name}
+      className={
+        currentImageIndex === index
+          ? 'block'
+          : 'hidden'
+      }
+    />
 
-              {/* Maximize */}
-              <button
-                className="image-action-btn"
-                onClick={handleMaximize}
-                title="View larger"
-              >
-                <LuMaximize size={20} />
-              </button>
+    {currentImageIndex === index && (
+      <div className="image-actions">
+        <button className="image-action-btn" onClick={handleMaximize} title="View larger">
+          <LuMaximize size={20} />
+        </button>
+        <button className="image-action-btn" onClick={handleProductClick} title="View product">
+          <LuShoppingBag size={20} />
+        </button>
+      </div>
+    )}
 
-              {/* Product */}
-              <button
-                className="image-action-btn"
-                onClick={handleProductClick}
-                title="View product"
-              >
-                <LuShoppingBag size={20} />
-              </button>
-
-            </div>
-          )}
-
-        </React.Fragment>
-      ))}
-
+  </React.Fragment>
+))}
       <button
         className="nav-button right"
         onClick={handleNextClick}
