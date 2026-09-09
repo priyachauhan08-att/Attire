@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link, useParams, Navigate } from 'react-router-dom'
 import { LuHeart, LuShare2 } from 'react-icons/lu'
-import Tag from '../components/Tag.jsx'
 import OutfitCard from '../components/OutfitCard.jsx'
 import SmartBgImage from '../components/SmartBgImage.jsx'
 
