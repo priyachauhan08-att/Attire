@@ -19,8 +19,6 @@ const HeroCarousel = ({ onImageChange }) => {
         if (Array.isArray(data) && data.length > 0) {
           setLooks(data);
         } else {
-          // fallback: no trending data yet (e.g. brand new store) —
-          // pull the regular product list instead so the hero isn't empty
           return fetch(`${apiUrl}/api/products`)
             .then(res => res.json())
             .then(all => setLooks(Array.isArray(all) ? all.slice(0, 5) : []));
@@ -82,38 +80,33 @@ const HeroCarousel = ({ onImageChange }) => {
         &lt;
       </button>
 
-{looks.map((look, index) => (
-  <React.Fragment key={look._id}>
+      {looks.map((look, index) => (
+        <React.Fragment key={look._id}>
 
-    {/* Blurred backdrop — same image, scaled + blurred, fills empty space */}
-    <div
-      className={`image-backdrop ${currentImageIndex === index ? 'block' : 'hidden'}`}
-      style={{ backgroundImage: `url(${look.mainImage})` }}
-    />
+          {/* Blurred backdrop — same image, scaled + blurred, fills empty space */}
+          <div
+            className={`image-backdrop ${currentImageIndex === index ? 'block' : 'hidden'}`}
+            style={{ backgroundImage: `url(${look.mainImage})` }}
+          />
 
-    <img
-      src={look.mainImage}
-      alt={look.name}
-      className={
-        currentImageIndex === index
-          ? 'block'
-          : 'hidden'
-      }
-    />
+          <img
+            src={`${look.mainImage.replace('/upload/', '/upload/f_auto,q_auto,w_1200/')}`}
+            alt={look.name}
+            className={currentImageIndex === index ? 'block' : 'hidden'}
+          />
+          {currentImageIndex === index && (
+            <div className="image-actions">
+              <button className="image-action-btn" onClick={handleMaximize} title="View larger">
+                <LuMaximize size={20} />
+              </button>
+              <button className="image-action-btn" onClick={handleProductClick} title="View product">
+                <LuShoppingBag size={20} />
+              </button>
+            </div>
+          )}
 
-    {currentImageIndex === index && (
-      <div className="image-actions">
-        <button className="image-action-btn" onClick={handleMaximize} title="View larger">
-          <LuMaximize size={20} />
-        </button>
-        <button className="image-action-btn" onClick={handleProductClick} title="View product">
-          <LuShoppingBag size={20} />
-        </button>
-      </div>
-    )}
-
-  </React.Fragment>
-))}
+        </React.Fragment>
+      ))}
       <button
         className="nav-button right"
         onClick={handleNextClick}

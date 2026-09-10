@@ -11,6 +11,9 @@ export default function Home() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const apiUrl = import.meta.env.VITE_API_URL;
+  const [categories, setCategories] = useState([])
+  const [selectedCategory, setSelectedCategory] = useState('All')
+
 
   useEffect(() => {
     fetch(`${apiUrl}/api/products`)
@@ -32,6 +35,17 @@ export default function Home() {
       setCurrentHero(outfit)
     }
   }
+
+  useEffect(() => {
+  fetch(`${apiUrl}/api/products/categories`)
+    .then(res => res.json())
+    .then(data => setCategories(Array.isArray(data) ? data : []))
+    .catch(() => setCategories([]))
+}, [])
+
+  const filteredOutfits = selectedCategory === 'All'
+    ? outfits
+    : outfits.filter(o => o.category === selectedCategory)
 
   return (
     <>
@@ -90,13 +104,40 @@ export default function Home() {
             <h2>The lookbook</h2>
           </div>
 
-          <span className="count">{outfits.length} looks</span>
+          <span className="count">{filteredOutfits.length} looks</span>
+        </div>
+
+        <div className="filter-chips">
+          <button
+            className={`filter-chip ${selectedCategory === 'All' ? 'active' : ''}`}
+            onClick={() => setSelectedCategory('All')}
+          >
+            All
+          </button>
+
+          {categories.map((cat) => (
+            <button
+              key={cat}
+              className={`filter-chip ${selectedCategory === cat ? 'active' : ''}`}
+              onClick={() => setSelectedCategory(cat)}
+            >
+              {cat}
+            </button>
+          ))}
         </div>
 
         <section className="outfit-grid">
-          {loading ? <p>Loading looks…</p> : error ? <p>Couldn't load looks: {error}</p> : outfits.map((outfit) => (
-            <OutfitCard key={outfit._id} outfit={outfit} />
-          ))}
+          {loading ? (
+            <p>Loading looks…</p>
+          ) : error ? (
+            <p>Couldn't load looks: {error}</p>
+          ) : filteredOutfits.length === 0 ? (
+            <p>No looks in this category yet.</p>
+          ) : (
+            filteredOutfits.map((outfit) => (
+              <OutfitCard key={outfit._id} outfit={outfit} />
+            ))
+          )}
         </section>
 
         <TrendingSection title="Most Viewed Looks" endpoint="trending/viewed" limit={3} />

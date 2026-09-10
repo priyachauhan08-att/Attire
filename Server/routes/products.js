@@ -24,24 +24,21 @@ router.get('/trending/clicked', async (req, res) => {
   }
 });
 
-// READ ALL
-router.get('/', async (req, res) => {
+router.get('/categories', async (req, res) => {
   try {
-    const products = await Product.find().sort({ createdAt: -1 });
-    res.json(products);
+    const categories = await Product.distinct('category');
+    const cleaned = categories.filter(Boolean).sort();
+    res.json(cleaned);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
 
-// READ ONE
-router.get('/:id', async (req, res) => {
+// READ ALL
+router.get('/', async (req, res) => {
   try {
-    const product = await Product.findById(req.params.id);
-    if (!product) {
-      return res.status(404).json({ error: 'Product not found' });
-    }
-    res.json(product);
+    const products = await Product.find().sort({ createdAt: -1 });
+    res.json(products);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -133,6 +130,20 @@ router.post(
     }
   }
 );
+
+// READ ONE
+router.get('/:id', async (req, res) => {
+  try {
+    const product = await Product.findById(req.params.id);
+    if (!product) {
+      return res.status(404).json({ error: 'Product not found' });
+    }
+    res.json(product);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 
 // DELETE
 router.delete('/:id', async (req, res) => {

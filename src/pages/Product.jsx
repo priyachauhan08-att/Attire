@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link, useParams, Navigate } from 'react-router-dom'
 import { LuHeart, LuShare2 } from 'react-icons/lu'
 import OutfitCard from '../components/OutfitCard.jsx'
-import SmartBgImage from '../components/SmartBgImage.jsx'
+import CloudinaryImage from '../components/CloudinaryImage.jsx'
 
 const money = (n) => `₹${n.toFixed(2)}`
 
@@ -48,7 +48,7 @@ export default function Product() {
 
         fetch(`${import.meta.env.VITE_API_URL}/api/products/${lookId}/view`, {
           method: 'PATCH',
-        }).catch(() => {})
+        }).catch(() => { })
 
         fetch(`${import.meta.env.VITE_API_URL}/api/products`)
           .then(res => res.json())
@@ -70,7 +70,7 @@ export default function Product() {
   const trackClick = () => {
     fetch(`${import.meta.env.VITE_API_URL}/api/products/${outfit._id}/click`, {
       method: 'PATCH',
-    }).catch(() => {})
+    }).catch(() => { })
   }
 
   const toggleLike = () => {
@@ -111,7 +111,7 @@ export default function Product() {
 
       <div className="product-layout">
         <div className="product-img-wrap">
-          <SmartBgImage src={outfit.mainImage} alt={outfit.name} style={{ width: '100%', height: '100%' }} />
+          <CloudinaryImage src={outfit.mainImage} alt={outfit.name} width={1000} style={{ width: '100%', height: '100%' }} />
         </div>
         <div className="product-info">
           {outfit.category && <p id="product-season">{outfit.category}</p>}

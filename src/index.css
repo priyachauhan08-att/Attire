@@ -112,6 +112,33 @@ h1,h2{ font-style: normal; }
   color: var(--rose);
 }
 
+.filter-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 20px 0 28px;
+}
+
+.filter-chip {
+  background: #f6f1ee;
+  border: 1px solid transparent;
+  color: #3a3a3a;
+  padding: 8px 18px;
+  border-radius: 999px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background 180ms ease, color 180ms ease, border-color 180ms ease;
+}
+
+.filter-chip:hover {
+  background: #ece3de;
+}
+
+.filter-chip.active {
+  background: #a5715c; /* swap for your brand accent */
+  color: #fff;
+}
+
 /* ---------- hamburger button — hidden on desktop ---------- */
 .menu-toggle{
   display: none;
