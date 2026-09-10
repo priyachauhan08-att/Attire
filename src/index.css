@@ -112,6 +112,7 @@ h1,h2{ font-style: normal; }
   color: var(--rose);
 }
 
+/* Desktop chip row stays the same */
 .filter-chips {
   display: flex;
   flex-wrap: wrap;
@@ -127,7 +128,7 @@ h1,h2{ font-style: normal; }
   border-radius: 999px;
   font-size: 0.9rem;
   cursor: pointer;
-  transition: background 180ms ease, color 180ms ease, border-color 180ms ease;
+  transition: background 180ms ease, color 180ms ease;
 }
 
 .filter-chip:hover {
@@ -135,9 +136,120 @@ h1,h2{ font-style: normal; }
 }
 
 .filter-chip.active {
-  background: #a5715c; /* swap for your brand accent */
+  background: #a5715c;
   color: #fff;
 }
+
+/* Custom dropdown — hidden on desktop by default */
+.filter-select-wrap {
+  display: none;
+}
+
+.filter-dropdown {
+  position: relative;
+  width: 100%;
+}
+
+.filter-dropdown-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  background: #f6f1ee;
+  border: 1.5px solid #e2d8d1;
+  color: #3a3a3a;
+  padding: 13px 16px;
+  border-radius: 12px;
+  font: inherit;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: border-color 180ms ease, box-shadow 180ms ease;
+}
+
+.filter-dropdown.open .filter-dropdown-trigger {
+  border-color: #a5715c;
+  box-shadow: 0 0 0 3px rgba(165, 113, 92, 0.12);
+}
+
+.filter-dropdown-chevron {
+  flex-shrink: 0;
+  margin-left: 10px;
+  color: #a5715c;
+  transition: transform 220ms ease;
+}
+
+.filter-dropdown.open .filter-dropdown-chevron {
+  transform: rotate(180deg);
+}
+
+.filter-dropdown-menu {
+  list-style: none;
+  margin: 0;
+  padding: 8px;
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  right: 0;
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.16);
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transform: translateY(-6px);
+  transition: max-height 260ms ease, opacity 220ms ease, transform 220ms ease;
+  z-index: 40;
+}
+
+.filter-dropdown-menu.open {
+  max-height: 320px;
+  opacity: 1;
+  transform: translateY(0);
+  overflow-y: auto;
+}
+
+.filter-dropdown-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+  padding: 12px 14px;
+  border-radius: 9px;
+  font: inherit;
+  font-size: 0.93rem;
+  color: #3a3a3a;
+  cursor: pointer;
+  transition: background 150ms ease;
+}
+
+.filter-dropdown-item:hover {
+  background: #f6f1ee;
+}
+
+.filter-dropdown-item.selected {
+  color: #a5715c;
+  font-weight: 600;
+}
+
+.filter-dropdown-item svg {
+  color: #a5715c;
+}
+
+@media (max-width: 768px) {
+  .filter-chips {
+    display: none;
+  }
+
+  .filter-select-wrap {
+    display: block;
+    margin: 20px 0 28px;
+  }
+}
+
 
 /* ---------- hamburger button — hidden on desktop ---------- */
 .menu-toggle{

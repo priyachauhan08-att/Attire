@@ -3,7 +3,7 @@ import { OUTFITS, BRAND } from '../data.js'
 import OutfitCard from '../components/OutfitCard.jsx'
 import HeroCarousel from '../components/HeroCarousel.jsx'
 import TrendingSection from '../components/TrendingSection.jsx'
-import Skeleton from '@mui/material/Skeleton';
+import CategoryFilterDropdown from '../components/CategoryFilterDropdown.jsx'
 
 export default function Home() {
 
@@ -127,9 +127,17 @@ export default function Home() {
           ))}
         </div>
 
+        <div className="filter-select-wrap">
+          <CategoryFilterDropdown
+            categories={categories}
+            selectedCategory={selectedCategory}
+            onChange={setSelectedCategory}
+          />
+        </div>
+
         <section className="outfit-grid">
           {loading ? (
-             <Skeleton animation="wave" />
+            <p>Loading looks…</p>
           ) : error ? (
             <p>Couldn't load looks: {error}</p>
           ) : filteredOutfits.length === 0 ? (
