@@ -3,6 +3,7 @@ import { Link, useParams, Navigate } from 'react-router-dom'
 import { LuHeart, LuShare2 } from 'react-icons/lu'
 import OutfitCard from '../components/OutfitCard.jsx'
 import CloudinaryImage from '../components/CloudinaryImage.jsx'
+import Skeleton from '@mui/material/Skeleton';
 
 const money = (n) => `₹${n.toFixed(2)}`
 
@@ -63,7 +64,7 @@ export default function Product() {
   }, [lookId])
 
   if (notFound) return <Navigate to="/" replace />
-  if (!outfit) return <p>Loading…</p>
+  if (!outfit) return <Skeleton animation="wave" variant="circular" />
 
   const total = outfit.items.reduce((sum, i) => sum + i.price, 0)
 

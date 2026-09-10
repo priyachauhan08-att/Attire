@@ -3,6 +3,7 @@ import { OUTFITS, BRAND } from '../data.js'
 import OutfitCard from '../components/OutfitCard.jsx'
 import HeroCarousel from '../components/HeroCarousel.jsx'
 import TrendingSection from '../components/TrendingSection.jsx'
+import Skeleton from '@mui/material/Skeleton';
 
 export default function Home() {
 
@@ -128,7 +129,7 @@ export default function Home() {
 
         <section className="outfit-grid">
           {loading ? (
-            <p>Loading looks…</p>
+             <Skeleton animation="wave" />
           ) : error ? (
             <p>Couldn't load looks: {error}</p>
           ) : filteredOutfits.length === 0 ? (

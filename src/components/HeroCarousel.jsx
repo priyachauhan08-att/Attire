@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import './HeroCarousel.css';
 import { LuMaximize, LuShoppingBag } from "react-icons/lu";
 import { useNavigate } from 'react-router-dom';
+import Skeleton from '@mui/material/Skeleton';
 
 const HeroCarousel = ({ onImageChange }) => {
   const [looks, setLooks] = useState([]);
@@ -63,7 +64,7 @@ const HeroCarousel = ({ onImageChange }) => {
   }, [currentImageIndex, looks]);
 
   if (loading) {
-    return <div className="image-container"><p style={{ padding: 24 }}>Loading looks…</p></div>;
+    <Skeleton animation="wave" variant="circular" />
   }
 
   if (looks.length === 0) {
