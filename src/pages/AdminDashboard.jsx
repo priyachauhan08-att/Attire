@@ -3,6 +3,7 @@ import {
   Plus, Package, Eye, MousePointerClick, Percent, Trash2,
   LayoutGrid, ShoppingBag, TrendingUp, X, ImagePlus, Loader2
 } from "lucide-react";
+import "./AdminLogin.css";
 
 // ---- palette -------------------------------------------------------------
 const C = {
