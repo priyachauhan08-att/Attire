@@ -141,13 +141,38 @@ export default function Product() {
   }
 
   const copyToClipboard = async (text) => {
+    // Try modern Clipboard API first (requires secure context + focus)
+    if (navigator.clipboard && window.isSecureContext) {
+      try {
+        await navigator.clipboard.writeText(text)
+        setShareCopied(true)
+        setTimeout(() => setShareCopied(false), 2000)
+        return
+      } catch (err) {
+        console.error('Clipboard API failed, trying fallback:', err)
+      }
+    }
+
+    // Fallback: old-school execCommand, works without secure context/focus quirks
     try {
-      await navigator.clipboard.writeText(text)
-      setShareCopied(true)
-      setTimeout(() => setShareCopied(false), 2000)
+      const textarea = document.createElement('textarea')
+      textarea.value = text
+      textarea.style.position = 'fixed'
+      textarea.style.opacity = '0'
+      document.body.appendChild(textarea)
+      textarea.focus()
+      textarea.select()
+      const ok = document.execCommand('copy')
+      document.body.removeChild(textarea)
+
+      if (ok) {
+        setShareCopied(true)
+        setTimeout(() => setShareCopied(false), 2000)
+        return
+      }
+      throw new Error('execCommand copy returned false')
     } catch (err) {
-      console.error('Clipboard write failed:', err)
-      // last-resort fallback so the user still gets the link somehow
+      console.error('All clipboard methods failed:', err)
       window.prompt('Copy this link:', text)
     }
   }
@@ -172,6 +197,7 @@ export default function Product() {
       await copyToClipboard(shareUrl)
     }
   }
+
 
   return (
     <main className="wrap product-section">
