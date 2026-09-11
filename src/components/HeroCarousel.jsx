@@ -64,7 +64,19 @@ const HeroCarousel = ({ onImageChange }) => {
   }, [currentImageIndex, looks]);
 
   if (loading) {
-    <Skeleton animation="wave" variant="circular" />
+    if (loading) {
+      return (
+        <div className="image-container">
+          <Skeleton
+            variant="rounded"
+            animation="wave"
+            width="100%"
+            height="100%"
+            sx={{ borderRadius: 2 }}
+          />
+        </div>
+      );
+    }
   }
 
   if (looks.length === 0) {

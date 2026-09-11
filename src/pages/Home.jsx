@@ -4,6 +4,7 @@ import OutfitCard from '../components/OutfitCard.jsx'
 import HeroCarousel from '../components/HeroCarousel.jsx'
 import TrendingSection from '../components/TrendingSection.jsx'
 import CategoryFilterDropdown from '../components/CategoryFilterDropdown.jsx'
+import Skeleton from '@mui/material/Skeleton'
 
 export default function Home() {
 
@@ -38,11 +39,11 @@ export default function Home() {
   }
 
   useEffect(() => {
-  fetch(`${apiUrl}/api/products/categories`)
-    .then(res => res.json())
-    .then(data => setCategories(Array.isArray(data) ? data : []))
-    .catch(() => setCategories([]))
-}, [])
+    fetch(`${apiUrl}/api/products/categories`)
+      .then(res => res.json())
+      .then(data => setCategories(Array.isArray(data) ? data : []))
+      .catch(() => setCategories([]))
+  }, [])
 
   const filteredOutfits = selectedCategory === 'All'
     ? outfits
@@ -137,7 +138,20 @@ export default function Home() {
 
         <section className="outfit-grid">
           {loading ? (
-            <p>Loading looks…</p>
+            Array.from({ length: 6 }).map((_, i) => (
+              <div className="look-card" key={`skeleton-${i}`}>
+                <Skeleton
+                  variant="rounded"
+                  animation="wave"
+                  className="look-card-img"
+                  sx={{ aspectRatio: '3 / 4', borderRadius: '8px', width: '100%' }}
+                />
+                <div className="look-card-meta">
+                  <Skeleton animation="wave" width="60%" height={22} sx={{ mt: 1 }} />
+                  <Skeleton animation="wave" width="35%" height={16} />
+                </div>
+              </div>
+            ))
           ) : error ? (
             <p>Couldn't load looks: {error}</p>
           ) : filteredOutfits.length === 0 ? (

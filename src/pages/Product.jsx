@@ -64,8 +64,60 @@ export default function Product() {
   }, [lookId])
 
   if (notFound) return <Navigate to="/" replace />
-  if (!outfit) return <Skeleton animation="wave" variant="circular" />
+  if (!outfit) {
+    return (
+      <main className="wrap product-section">
+        <div className="back-link">
+          <Skeleton animation="wave" width={80} height={20} />
+        </div>
 
+        <div className="product-layout">
+          <div className="product-img-wrap">
+            <Skeleton
+              animation="wave"
+              variant="rounded"
+              width="100%"
+              height="100%"
+              sx={{ position: 'absolute', inset: 0 }}
+            />
+          </div>
+
+          <div className="product-info">
+            <Skeleton animation="wave" width="30%" height={16} />
+            <Skeleton animation="wave" width="70%" height={36} sx={{ mt: 1 }} />
+
+            <div className="blurb-row">
+              <Skeleton animation="wave" width="90%" height={20} sx={{ mt: 1 }} />
+            </div>
+
+            <div className="shop-head">
+              <Skeleton animation="wave" width={100} height={20} />
+              <Skeleton animation="wave" width={60} height={20} />
+            </div>
+
+            <ul className="item-list">
+              {Array.from({ length: 3 }).map((_, i) => (
+                <li className="item-row" key={`skeleton-item-${i}`}>
+                  <Skeleton animation="wave" variant="rounded" width={56} height={56} />
+                  <div className="item-info">
+                    <Skeleton animation="wave" width="40%" height={14} />
+                    <Skeleton animation="wave" width="70%" height={18} />
+                  </div>
+                  <Skeleton animation="wave" width={60} height={18} />
+                  <Skeleton animation="wave" variant="rounded" width={90} height={32} />
+                </li>
+              ))}
+            </ul>
+
+            <div className="product-total-row">
+              <Skeleton animation="wave" width={100} height={20} />
+              <Skeleton animation="wave" width={70} height={24} />
+            </div>
+          </div>
+        </div>
+      </main>
+    )
+  }
   const total = outfit.items.reduce((sum, i) => sum + i.price, 0)
 
   const trackClick = () => {

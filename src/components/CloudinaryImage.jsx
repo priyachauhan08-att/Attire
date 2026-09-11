@@ -34,7 +34,7 @@ export default function CloudinaryImage({
 }) {
   const [loaded, setLoaded] = useState(false)
 
-  const placeholderSrc = withTransform(src, 'e_blur:1000,q_1,w_50')
+  const placeholderSrc = withTransform(src, 'e_blur:400,q_40,w_50')
   const fullSrc = withTransform(src, `f_auto,q_auto,w_${width}`)
 
   return (
@@ -49,6 +49,7 @@ export default function CloudinaryImage({
       }}
     >
       {/* Blurred placeholder — shows instantly */}
+      {/* Blurred placeholder — shows instantly */}
       <img
         src={placeholderSrc}
         alt=""
@@ -59,13 +60,11 @@ export default function CloudinaryImage({
           width: '100%',
           height: '100%',
           objectFit: 'cover',
-          filter: 'blur(8px)',
-          transform: 'scale(1.1)', // hides blur edge artifacts
+          transform: 'scale(1.05)', // hides blur edge artifacts
           opacity: loaded ? 0 : 1,
           transition: 'opacity 400ms ease',
         }}
       />
-
       {/* Full quality image — fades in once loaded */}
       <img
         src={fullSrc}
