@@ -64,6 +64,7 @@ export default function Product() {
   }, [lookId])
 
   if (notFound) return <Navigate to="/" replace />
+
   if (!outfit) {
     return (
       <main className="wrap product-section">
@@ -118,6 +119,7 @@ export default function Product() {
       </main>
     )
   }
+
   const total = outfit.items.reduce((sum, i) => sum + i.price, 0)
 
   const trackClick = () => {
@@ -138,23 +140,36 @@ export default function Product() {
     setLiked(!isLiked)
   }
 
+  const copyToClipboard = async (text) => {
+    try {
+      await navigator.clipboard.writeText(text)
+      setShareCopied(true)
+      setTimeout(() => setShareCopied(false), 2000)
+    } catch (err) {
+      console.error('Clipboard write failed:', err)
+      // last-resort fallback so the user still gets the link somehow
+      window.prompt('Copy this link:', text)
+    }
+  }
+
   const handleShare = async () => {
+    const shareUrl = window.location.href
     const shareData = {
       title: outfit.name,
-      text: outfit.description,
-      url: window.location.href,
+      text: `${outfit.description}\n${shareUrl}`,
     }
 
     if (navigator.share) {
       try {
         await navigator.share(shareData)
-      } catch {
-        // user cancelled — do nothing
+      } catch (err) {
+        if (err.name !== 'AbortError') {
+          // real failure, not just the user cancelling — fall back to clipboard
+          await copyToClipboard(shareUrl)
+        }
       }
     } else {
-      await navigator.clipboard.writeText(window.location.href)
-      setShareCopied(true)
-      setTimeout(() => setShareCopied(false), 2000)
+      await copyToClipboard(shareUrl)
     }
   }
 
